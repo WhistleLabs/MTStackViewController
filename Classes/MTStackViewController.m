@@ -202,14 +202,14 @@ const char *MTStackViewControllerKey = "MTStackViewControllerKey";
 
 - (void)updateContainerViewFrameWidths
 {
-    CGFloat containerViewWidth = [self screenBounds].size.width - self.slideOffset;
-
+    CGFloat containerViewWidthAdjustment = -([self screenBounds].size.width - self.slideOffset);
+    
     CGRect frame = self.rightContainerView.frame;
-    frame.size.width = containerViewWidth;
+    frame.size.width += containerViewWidthAdjustment;
     self.rightContainerView.frame = frame;
     
     frame = self.leftContainerView.frame;
-    frame.size.width = containerViewWidth;
+    frame.size.width += containerViewWidthAdjustment;
     self.leftContainerView.frame = frame;
 }
 
