@@ -104,7 +104,7 @@
 		22F4AFC216BAECB6000384FD = {
 			isa = PBXGroup;
 			children = (
-				22D883D417737DFB00619C35 /* QuartzCore.framework */,
+				22F4AFEC16BAED16000384FD /* MTStackViewController */,
 				22F4AFD416BAECB6000384FD /* MTStackViewControllerExample */,
 				22F4AFCD16BAECB6000384FD /* Frameworks */,
 				22F4AFCC16BAECB6000384FD /* Products */,
@@ -122,6 +122,7 @@
 		22F4AFCD16BAECB6000384FD /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				22D883D417737DFB00619C35 /* QuartzCore.framework */,
 				22F4AFCE16BAECB6000384FD /* UIKit.framework */,
 				22F4AFD016BAECB6000384FD /* Foundation.framework */,
 				22F4AFD216BAECB6000384FD /* CoreGraphics.framework */,
@@ -133,7 +134,6 @@
 			isa = PBXGroup;
 			children = (
 				22F4AFF116BAED76000384FD /* MTMenuViewController */,
-				22F4AFEC16BAED16000384FD /* MTStackViewController */,
 				22F4AFEB16BAED05000384FD /* MTAppDelegate */,
 				22F4AFD516BAECB6000384FD /* Supporting Files */,
 			);
@@ -174,6 +174,7 @@
 				22D883D7177380F500619C35 /* MTStackDefaultContainerView.m */,
 			);
 			name = MTStackViewController;
+			path = MTStackViewControllerExample;
 			sourceTree = "<group>";
 		};
 		22F4AFF116BAED76000384FD /* MTMenuViewController */ = {
