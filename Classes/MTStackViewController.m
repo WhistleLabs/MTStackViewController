@@ -356,6 +356,9 @@ const char *MTStackViewControllerKey = "MTStackViewControllerKey";
         
         if (currentViewController)
         {
+            newViewController.view.frame = containerView.bounds;
+            [newViewController.view setNeedsLayout];
+            
             [self transitionFromViewController:currentViewController toViewController:newViewController duration:0.0f options:0 animations:nil completion:^(BOOL finished) {
                 [currentViewController removeFromParentViewController];
                 [currentViewController setStackViewController:nil];
