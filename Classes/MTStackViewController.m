@@ -166,12 +166,12 @@ const char *MTStackViewControllerKey = "MTStackViewControllerKey";
     _leftSnapThreshold = screenBounds.size.width / 2.0f;
     _rasterizesViewsDuringAnimation = YES;
     
-    [self setSlideOffset:roundf(screenBounds.size.width * 0.8f)];
-    
     _leftContainerView = [[MTStackDefaultContainerView alloc] initWithFrame:screenBounds];
     _rightContainerView = [[MTStackDefaultContainerView alloc] initWithFrame:screenBounds];
     _contentContainerView = [[MTStackContentContainerView alloc] initWithFrame:screenBounds];
-    
+
+    [self setSlideOffset:roundf(screenBounds.size.width * 0.8f)];
+
     UIView *transitionView = [[UIView alloc] initWithFrame:screenBounds];
     [_contentContainerView addSubview:transitionView];
     
