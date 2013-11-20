@@ -61,7 +61,12 @@ const char *MTStackViewControllerKey = "MTStackViewControllerKey";
 
 - (void)setContentView:(UIView *)contentView
 {
+    for (UIView *view in self.subviews) {
+        [view removeFromSuperview];
+    }
     [self addSubview:contentView];
+    contentView.frame = self.bounds;
+    [contentView setNeedsLayout];
 }
 
 - (void)stackViewController:(MTStackViewController*)stackViewController
@@ -187,6 +192,27 @@ const char *MTStackViewControllerKey = "MTStackViewControllerKey";
     [self setShadowColor:[UIColor blackColor]];
 }
 
+- (void)setSlideOffset:(CGFloat)slideOffset
+{
+    if (_slideOffset != slideOffset) {
+        _slideOffset = slideOffset;
+        [self updateContainerViewFrameWidths];
+    }
+}
+
+- (void)updateContainerViewFrameWidths
+{
+    CGFloat containerViewWidth = [self screenBounds].size.width - self.slideOffset;
+
+    CGRect frame = self.rightContainerView.frame;
+    frame.size.width = containerViewWidth;
+    self.rightContainerView.frame = frame;
+    
+    frame = self.leftContainerView.frame;
+    frame.size.width = containerViewWidth;
+    self.leftContainerView.frame = frame;
+}
+
 - (void)loadView
 {
     CGRect frame = [[UIScreen mainScreen] bounds];
@@ -208,6 +234,8 @@ const char *MTStackViewControllerKey = "MTStackViewControllerKey";
 
     [_contentContainerView setFrame:[view bounds]];
     [view addSubview:_contentContainerView];
+    
+    [self updateContainerViewFrameWidths];
     
     [self setView:view];
 }
