@@ -202,14 +202,12 @@ const char *MTStackViewControllerKey = "MTStackViewControllerKey";
 
 - (void)updateContainerViewFrameWidths
 {
-    CGFloat containerViewWidthAdjustment = -([self screenBounds].size.width - self.slideOffset);
-    
     CGRect frame = self.rightContainerView.frame;
-    frame.size.width += containerViewWidthAdjustment;
+    frame.size.width = self.slideOffset;
     self.rightContainerView.frame = frame;
     
     frame = self.leftContainerView.frame;
-    frame.size.width += containerViewWidthAdjustment;
+    frame.size.width = self.slideOffset;
     self.leftContainerView.frame = frame;
 }
 
@@ -352,13 +350,12 @@ const char *MTStackViewControllerKey = "MTStackViewControllerKey";
     if (newViewController)
     {
         [newViewController setStackViewController:self];
+        newViewController.view.frame = containerView.bounds;
+        [newViewController.view setNeedsLayout];
         [self addChildViewController:newViewController];
         
         if (currentViewController)
         {
-            newViewController.view.frame = containerView.bounds;
-            [newViewController.view setNeedsLayout];
-            
             [self transitionFromViewController:currentViewController toViewController:newViewController duration:0.0f options:0 animations:nil completion:^(BOOL finished) {
                 [currentViewController removeFromParentViewController];
                 [currentViewController setStackViewController:nil];
