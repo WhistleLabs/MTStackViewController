@@ -26,17 +26,12 @@
     [stackViewController setAnimationDurationProportionalToPosition:YES];
     
     MTMenuViewController *menuViewController = [[MTMenuViewController alloc] initWithNibName:nil bundle:nil];
-    //UINavigationController *menuNavigationController = [[UINavigationController alloc] initWithRootViewController:menuViewController];
     CGRect foldFrame = CGRectMake(0, 0, stackViewController.slideOffset,
                                   CGRectGetHeight(self.window.bounds));
     menuViewController.view.frame = foldFrame;
     
-//    [stackViewController setLeftContainerView:[[MTStackFoldView alloc] initWithFrame:foldFrame foldDirection:FoldDirectionHorizontalLeftToRight]];
     [stackViewController setLeftContainerView:[[MTZoomContainerView alloc] initWithFrame:foldFrame]];
     [stackViewController setLeftViewController:menuViewController];
-    
-    
-
     
     UITableViewController* tableViewController = [[UITableViewController alloc] initWithNibName:nil bundle:nil];
     [stackViewController setRightViewController:tableViewController];

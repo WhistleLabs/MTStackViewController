@@ -16,7 +16,9 @@ static NSString *const MTTableViewCellIdentifier = @"MTTableViewCell";
 {
     NSMutableArray *_datasource;
     BOOL _didSetInitialViewController;
+    BOOL _prefersStatusBarHidden;
 }
+
 @end
 
 @implementation MTMenuViewController
@@ -55,6 +57,11 @@ static NSString *const MTTableViewCellIdentifier = @"MTTableViewCell";
     }
 }
 
+- (BOOL)prefersStatusBarHidden
+{
+    return _prefersStatusBarHidden;
+}
+
 #pragma mark - Instance Methods
 
 - (void)setInitialViewController
@@ -87,7 +94,18 @@ static NSString *const MTTableViewCellIdentifier = @"MTTableViewCell";
     UIBarButtonItem *menuBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Menu" style:UIBarButtonItemStyleBordered target:[self stackViewController] action:@selector(toggleLeftViewController)];
     [[viewController navigationItem] setLeftBarButtonItem:menuBarButtonItem];
     
+    UIBarButtonItem *toggleStatusBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(onToggleStatusBarTapped)];
+    [[viewController navigationItem] setRightBarButtonItem:toggleStatusBarButtonItem];
+    
     return viewController;
+}
+
+#pragma mark - Actions
+
+- (void)onToggleStatusBarTapped
+{
+    _prefersStatusBarHidden = !_prefersStatusBarHidden;
+    [self setNeedsStatusBarAppearanceUpdate];
 }
 
 #pragma mark - UITableViewDatasource Methods

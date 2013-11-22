@@ -122,6 +122,9 @@ const char *MTStackViewControllerKey = "MTStackViewControllerKey";
     CGRect _initialContentControllerFrame;
     UITapGestureRecognizer *_tapGestureRecognizer;
 }
+
+@property (nonatomic, weak) UIViewController *childViewControllerForStatusBarHidden;
+
 @end
 
 @interface MTStackViewController () <UIGestureRecognizerDelegate>
@@ -154,6 +157,45 @@ const char *MTStackViewControllerKey = "MTStackViewControllerKey";
     }
     return self;
 }
+
+- (void)loadView
+{
+    CGRect frame = [[UIScreen mainScreen] bounds];
+    CGRect statusBarFrame = [[UIApplication sharedApplication] statusBarFrame];
+    frame.size.height -= MIN(statusBarFrame.size.width, statusBarFrame.size.height);
+    
+    UIView *view = [[UIView alloc] initWithFrame:frame];
+    [view setAutoresizesSubviews:YES];
+    [view setAutoresizingMask:UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth];
+    
+    self.leftContainerView.frame = view.bounds;
+    [view addSubview:self.leftContainerView];
+    
+    float frameWidth = CGRectGetWidth(view.frame);
+    self.rightContainerView.frame = CGRectMake(frameWidth - self.slideOffset,
+                                               0.0f, frameWidth,
+                                               CGRectGetHeight(view.frame));
+    [view addSubview:self.rightContainerView];
+    
+    [_contentContainerView setFrame:[view bounds]];
+    [view addSubview:_contentContainerView];
+    
+    [self updateContainerViewFrameWidths];
+    
+    [self setView:view];
+}
+
+- (UIViewController *)childViewControllerForStatusBarHidden
+{
+    return _childViewControllerForStatusBarHidden;
+}
+
+- (UIViewController *)childViewControllerForStatusBarStyle
+{
+    return [self childViewControllerForStatusBarHidden];
+}
+
+#pragma mark - Internal Setup
 
 - (void)setup
 {
@@ -192,14 +234,6 @@ const char *MTStackViewControllerKey = "MTStackViewControllerKey";
     [self setShadowColor:[UIColor blackColor]];
 }
 
-- (void)setSlideOffset:(CGFloat)slideOffset
-{
-    if (_slideOffset != slideOffset) {
-        _slideOffset = slideOffset;
-        [self updateContainerViewFrameWidths];
-    }
-}
-
 - (void)updateContainerViewFrameWidths
 {
     CGRect frame = self.rightContainerView.frame;
@@ -211,34 +245,15 @@ const char *MTStackViewControllerKey = "MTStackViewControllerKey";
     self.leftContainerView.frame = frame;
 }
 
-- (void)loadView
-{
-    CGRect frame = [[UIScreen mainScreen] bounds];
-    CGRect statusBarFrame = [[UIApplication sharedApplication] statusBarFrame];
-    frame.size.height -= MIN(statusBarFrame.size.width, statusBarFrame.size.height);
-    
-    UIView *view = [[UIView alloc] initWithFrame:frame];
-    [view setAutoresizesSubviews:YES];
-    [view setAutoresizingMask:UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth];
-
-    self.leftContainerView.frame = view.bounds;
-    [view addSubview:self.leftContainerView];
-    
-    float frameWidth = CGRectGetWidth(view.frame);
-    self.rightContainerView.frame = CGRectMake(frameWidth - self.slideOffset,
-                                               0.0f, frameWidth,
-                                               CGRectGetHeight(view.frame));
-    [view addSubview:self.rightContainerView];
-
-    [_contentContainerView setFrame:[view bounds]];
-    [view addSubview:_contentContainerView];
-    
-    [self updateContainerViewFrameWidths];
-    
-    [self setView:view];
-}
-
 #pragma mark - Accessors
+
+- (void)setSlideOffset:(CGFloat)slideOffset
+{
+    if (_slideOffset != slideOffset) {
+        _slideOffset = slideOffset;
+        [self updateContainerViewFrameWidths];
+    }
+}
 
 - (void)setNoSimultaneousPanningViewClasses:(NSArray *)noSimultaneousPanningViewClasses
 {
@@ -675,7 +690,9 @@ const char *MTStackViewControllerKey = "MTStackViewControllerKey";
                                                side:MTStackViewControllerPositionRight
                                             toFrame:containerFrame
                                        withDuration:animationDuration];
-        
+
+        [self willRevealViewController:[self leftViewController]];
+
         [UIView animateWithDuration:animationDuration
                               delay:0.0f
                             options:UIViewAnimationOptionCurveEaseOut | UIViewAnimationOptionBeginFromCurrentState
@@ -689,7 +706,7 @@ const char *MTStackViewControllerKey = "MTStackViewControllerKey";
                              
                              [[_contentContainerView layer] setShadowRadius:[self minShadowRadius]];
                              [[_contentContainerView layer] setShadowOpacity:[self minShadowOpacity]];
-                             
+                             [self visibleViewControllerDidChange];
                          } completion:^(BOOL finished) {
                              
                              if ([self rasterizesViewsDuringAnimation])
@@ -702,10 +719,7 @@ const char *MTStackViewControllerKey = "MTStackViewControllerKey";
                              [self setContentViewUserInteractionEnabled:NO];
                              [_contentContainerView addGestureRecognizer:_tapGestureRecognizer];
                              
-                             if ([[self delegate] respondsToSelector:@selector(stackViewController:didRevealLeftViewController:)])
-                             {
-                                 [[self delegate] stackViewController:self didRevealLeftViewController:[self leftViewController]];
-                             }
+                             [self didRevealLeftViewController];
                              
                          }];
     }
@@ -742,6 +756,8 @@ const char *MTStackViewControllerKey = "MTStackViewControllerKey";
                                              toFrame:containerFrame
                                         withDuration:self.slideAnimationDuration];
         
+        [self willRevealViewController:[self rightViewController]];
+
         [UIView animateWithDuration:animated ? [self slideAnimationDuration] : 0.0f
                               delay:0.0f
                             options:UIViewAnimationOptionCurveEaseOut | UIViewAnimationOptionBeginFromCurrentState
@@ -753,7 +769,7 @@ const char *MTStackViewControllerKey = "MTStackViewControllerKey";
                                     CGRectGetHeight([_contentContainerView frame]))];
                              [[_contentContainerView layer] setShadowRadius:[self minShadowRadius]];
                              [[_contentContainerView layer] setShadowOpacity:[self minShadowOpacity]];
-                             
+                             [self visibleViewControllerDidChange];
                          } completion:^(BOOL finished) {
                              
                              if ([self rasterizesViewsDuringAnimation])
@@ -765,11 +781,7 @@ const char *MTStackViewControllerKey = "MTStackViewControllerKey";
                              [self setContentViewUserInteractionEnabled:NO];
                              [_contentContainerView addGestureRecognizer:_tapGestureRecognizer];
                              
-                             if ([[self delegate] respondsToSelector:@selector(stackViewController:didRevealLeftViewController:)])
-                             {
-                                 [[self delegate] stackViewController:self didRevealRightViewController:[self leftViewController]];
-                             }
-                             
+                             [self didRevealRightViewController];
                          }];
     }
 }
@@ -846,6 +858,8 @@ const char *MTStackViewControllerKey = "MTStackViewControllerKey";
                                             side:MTStackViewControllerPositionRight
                                          toFrame:rightFrame
                                     withDuration:animationDuration];
+
+    [self willRevealViewController:[self contentViewController]];
     
     [UIView animateWithDuration:animationDuration
                           delay:0.0f
@@ -854,6 +868,7 @@ const char *MTStackViewControllerKey = "MTStackViewControllerKey";
                          [_contentContainerView setFrame:contentFrame];
                          [[_contentContainerView layer] setShadowRadius:[self maxShadowRadius]];
                          [[_contentContainerView layer] setShadowOpacity:[self maxShadowOpacity]];
+                         [self visibleViewControllerDidChange];
                      } completion:^(BOOL finished) {
                          if ([self rasterizesViewsDuringAnimation])
                          {
@@ -865,11 +880,44 @@ const char *MTStackViewControllerKey = "MTStackViewControllerKey";
                          [self setContentViewUserInteractionEnabled:YES];
                          [_contentContainerView removeGestureRecognizer:_tapGestureRecognizer];
                          
-                         if ([[self delegate] respondsToSelector:@selector(stackViewController:didRevealContentViewController:)])
-                         {
-                             [[self delegate] stackViewController:self didRevealContentViewController:[self contentViewController]];
-                         }
+                         [self didRevealContentViewController];
                      }];
+}
+
+- (void)visibleViewControllerDidChange
+{
+    if ([self respondsToSelector:@selector(setNeedsStatusBarAppearanceUpdate)]) {
+        [self setNeedsStatusBarAppearanceUpdate];
+    }
+}
+
+- (void)willRevealViewController:(UIViewController *)controller
+{
+    self.childViewControllerForStatusBarHidden = controller;
+}
+
+- (void)didRevealLeftViewController
+{
+    if ([[self delegate] respondsToSelector:@selector(stackViewController:didRevealLeftViewController:)])
+    {
+        [[self delegate] stackViewController:self didRevealLeftViewController:[self leftViewController]];
+    }
+}
+
+- (void)didRevealRightViewController
+{
+    if ([[self delegate] respondsToSelector:@selector(stackViewController:didRevealLeftViewController:)])
+    {
+        [[self delegate] stackViewController:self didRevealRightViewController:[self leftViewController]];
+    }
+}
+
+- (void)didRevealContentViewController
+{
+    if ([[self delegate] respondsToSelector:@selector(stackViewController:didRevealContentViewController:)])
+    {
+        [[self delegate] stackViewController:self didRevealContentViewController:[self contentViewController]];
+    }
 }
 
 - (void)toggleLeftViewController
