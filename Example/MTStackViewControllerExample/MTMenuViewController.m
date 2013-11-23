@@ -43,6 +43,7 @@ static NSString *const MTTableViewCellIdentifier = @"MTTableViewCell";
 - (void)viewDidLoad
 {
     [[self tableView] registerClass:[UITableViewCell class] forCellReuseIdentifier:MTTableViewCellIdentifier];
+    self.edgesForExtendedLayout = UIRectEdgeNone;
     
     // For some reason, when the view is added for the fold view, the nav bar gets pushed down for the status bar
     CGRect frame = self.navigationController.navigationBar.frame;

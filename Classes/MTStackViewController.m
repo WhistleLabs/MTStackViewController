@@ -354,6 +354,23 @@ const char *MTStackViewControllerKey = "MTStackViewControllerKey";
     [self setViewController:rightViewController position:MTStackViewControllerPositionRight];
 }
 
+- (CGRect)frameForViewController:(UIViewController *)viewController
+                 inContainerView:(UIView *)containerView
+{
+    CGRect frame = containerView.bounds;
+    CGFloat statusBarHeight = [[UIApplication sharedApplication] statusBarFrame].size.height;
+    if ([viewController respondsToSelector:@selector(prefersStatusBarHidden)]) {
+        if (![viewController prefersStatusBarHidden]) {
+            frame.size.height -= statusBarHeight;
+            frame.origin.y += statusBarHeight;
+        }
+    } else {
+        frame.size.height -= statusBarHeight;
+        frame.origin.y += statusBarHeight;
+    }
+    return frame;
+}
+
 - (void)setViewController:(UIViewController *)newViewController position:(MTStackViewControllerPosition)position
 {
     UIViewController* currentViewController;
@@ -375,7 +392,8 @@ const char *MTStackViewControllerKey = "MTStackViewControllerKey";
     if (newViewController)
     {
         [newViewController setStackViewController:self];
-        newViewController.view.frame = containerView.bounds;
+        newViewController.view.frame = [self frameForViewController:newViewController
+                                                    inContainerView:containerView];
         [newViewController.view setNeedsLayout];
         [self addChildViewController:newViewController];
         [self.view bringSubviewToFront:self.statusBarBackgroundView];
