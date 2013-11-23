@@ -19,6 +19,8 @@ static NSString *const MTTableViewCellIdentifier = @"MTTableViewCell";
     BOOL _prefersStatusBarHidden;
 }
 
+@property (nonatomic, strong) UIColor *preferredStatusBarBackgroundColor;
+
 @end
 
 @implementation MTMenuViewController
@@ -89,6 +91,7 @@ static NSString *const MTTableViewCellIdentifier = @"MTTableViewCell";
 {
     UIViewController *viewController = [UIViewController new];
     [[viewController view] setBackgroundColor:_datasource[[indexPath row]]];
+    self.preferredStatusBarBackgroundColor = _datasource[[indexPath row]];
     [[viewController navigationItem] setTitle:[NSString stringWithFormat:@"View Controller %d", [indexPath row]]];
     
     UIBarButtonItem *menuBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Menu" style:UIBarButtonItemStyleBordered target:[self stackViewController] action:@selector(toggleLeftViewController)];

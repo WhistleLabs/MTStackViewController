@@ -128,7 +128,7 @@ const char *MTStackViewControllerKey = "MTStackViewControllerKey";
 @end
 
 @interface MTStackViewController () <UIGestureRecognizerDelegate>
-
+@property (nonatomic, strong) UIView *statusBarBackgroundView;
 @end
 
 @implementation MTStackViewController
@@ -182,7 +182,17 @@ const char *MTStackViewControllerKey = "MTStackViewControllerKey";
     
     [self updateContainerViewFrameWidths];
     
+    [view addSubview:self.statusBarBackgroundView];
+    
     [self setView:view];
+}
+
+- (UIView *)statusBarBackgroundView
+{
+    if (! _statusBarBackgroundView) {
+        _statusBarBackgroundView = [[UIView alloc] initWithFrame:[[UIApplication sharedApplication] statusBarFrame]];
+    }
+    return _statusBarBackgroundView;
 }
 
 - (UIViewController *)childViewControllerForStatusBarHidden
@@ -368,7 +378,8 @@ const char *MTStackViewControllerKey = "MTStackViewControllerKey";
         newViewController.view.frame = containerView.bounds;
         [newViewController.view setNeedsLayout];
         [self addChildViewController:newViewController];
-        
+        [self.view bringSubviewToFront:self.statusBarBackgroundView];
+
         if (currentViewController)
         {
             [self transitionFromViewController:currentViewController toViewController:newViewController duration:0.0f options:0 animations:nil completion:^(BOOL finished) {
@@ -706,7 +717,7 @@ const char *MTStackViewControllerKey = "MTStackViewControllerKey";
                              
                              [[_contentContainerView layer] setShadowRadius:[self minShadowRadius]];
                              [[_contentContainerView layer] setShadowOpacity:[self minShadowOpacity]];
-                             [self visibleViewControllerDidChange];
+                             self.visibleViewController = _leftViewController;
                          } completion:^(BOOL finished) {
                              
                              if ([self rasterizesViewsDuringAnimation])
@@ -769,7 +780,7 @@ const char *MTStackViewControllerKey = "MTStackViewControllerKey";
                                     CGRectGetHeight([_contentContainerView frame]))];
                              [[_contentContainerView layer] setShadowRadius:[self minShadowRadius]];
                              [[_contentContainerView layer] setShadowOpacity:[self minShadowOpacity]];
-                             [self visibleViewControllerDidChange];
+                             self.visibleViewController = _rightViewController;
                          } completion:^(BOOL finished) {
                              
                              if ([self rasterizesViewsDuringAnimation])
@@ -868,7 +879,7 @@ const char *MTStackViewControllerKey = "MTStackViewControllerKey";
                          [_contentContainerView setFrame:contentFrame];
                          [[_contentContainerView layer] setShadowRadius:[self maxShadowRadius]];
                          [[_contentContainerView layer] setShadowOpacity:[self maxShadowOpacity]];
-                         [self visibleViewControllerDidChange];
+                         self.visibleViewController = _contentViewController;
                      } completion:^(BOOL finished) {
                          if ([self rasterizesViewsDuringAnimation])
                          {
@@ -884,11 +895,27 @@ const char *MTStackViewControllerKey = "MTStackViewControllerKey";
                      }];
 }
 
+- (void)setVisibleViewController:(UIViewController *)visibleViewController
+{
+    if (_visibleViewController != visibleViewController) {
+        _visibleViewController = visibleViewController;
+        [self visibleViewControllerDidChange];
+    }
+}
+
 - (void)visibleViewControllerDidChange
 {
+    if ([_visibleViewController respondsToSelector:@selector(preferredStatusBarBackgroundColor)]) {
+        self.statusBarBackgroundView.backgroundColor =
+            (UIColor *) [_visibleViewController performSelector:@selector(preferredStatusBarBackgroundColor)];
+    } else {
+        self.statusBarBackgroundView.backgroundColor = [UIColor clearColor];
+    }
+    
     if ([self respondsToSelector:@selector(setNeedsStatusBarAppearanceUpdate)]) {
         [self setNeedsStatusBarAppearanceUpdate];
     }
+    
 }
 
 - (void)willRevealViewController:(UIViewController *)controller

@@ -70,6 +70,8 @@ typedef enum
     UIPanGestureRecognizer *_panGestureRecognizer;
 }
 
+@property (nonatomic, weak) UIViewController *visibleViewController;
+
 // Represents the left most view controller on the "stack".
 // Default: nil
 @property (nonatomic, strong) UIViewController *leftViewController;
