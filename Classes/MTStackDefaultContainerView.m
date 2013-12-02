@@ -7,14 +7,14 @@
 //
 
 #import "MTStackDefaultContainerView.h"
-
+#import "SystemVersions.h"
 #import <QuartzCore/QuartzCore.h>
 
 @interface MTStackDefaultContainerView ()
 
 @property (nonatomic, readonly) UIView *overlayView;
 @property (nonatomic) BOOL parallaxEnabled;
-
+@property (nonatomic, strong, readwrite) UIView *statusBarBackgroundView;
 @end
 
 @implementation MTStackDefaultContainerView
@@ -30,10 +30,16 @@
         self.parallaxEnabled = YES;
         
         _overlayView = [[UIView alloc] initWithFrame:[self bounds]];
+        
         [[self overlayView] setAutoresizingMask:UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth];
         [[self overlayView] setAlpha:1.0f];
         self.overlayView.backgroundColor = [UIColor blackColor];
         [self addSubview:_overlayView];
+        
+        WL_RUNON_7(
+                   self.statusBarBackgroundView = [[UIView alloc] initWithFrame:[[UIApplication sharedApplication] statusBarFrame]];
+                   [self addSubview:self.statusBarBackgroundView];
+        )
         
         [self.layer setRasterizationScale:[UIScreen mainScreen].scale];
         self.backgroundColor = [UIColor whiteColor];
@@ -45,6 +51,10 @@
 {
     [super layoutSubviews];
     [self bringSubviewToFront:[self overlayView]];
+    WL_RUNON_7(
+               [self.statusBarBackgroundView setFrame:[[UIApplication sharedApplication] statusBarFrame]];
+               [self bringSubviewToFront:self.statusBarBackgroundView];
+    )
 }
 
 -(void)stackViewController:(MTStackViewController *)stackViewController show:(BOOL)show

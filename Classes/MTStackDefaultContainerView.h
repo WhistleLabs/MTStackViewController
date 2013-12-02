@@ -11,5 +11,5 @@
 #import "MTStackViewController.h"
 
 @interface MTStackDefaultContainerView : MTStackContainerView
-
+@property (nonatomic, strong, readonly) UIView *statusBarBackgroundView;
 @end

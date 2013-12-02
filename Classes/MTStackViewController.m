@@ -24,11 +24,10 @@
 // THE SOFTWARE.
 
 #import "MTStackViewController.h"
-
 #import <QuartzCore/QuartzCore.h>
 #import <objc/runtime.h>
-
 #import "MTStackDefaultContainerView.h"
+#import "SystemVersions.h"
 
 const char *MTStackViewControllerKey = "MTStackViewControllerKey";
 
@@ -161,8 +160,10 @@ const char *MTStackViewControllerKey = "MTStackViewControllerKey";
 - (void)loadView
 {
     CGRect frame = [[UIScreen mainScreen] bounds];
-    CGRect statusBarFrame = [[UIApplication sharedApplication] statusBarFrame];
-    frame.size.height -= MIN(statusBarFrame.size.width, statusBarFrame.size.height);
+    WL_RUNON_7(
+               CGRect statusBarFrame = self.statusBarBackgroundView.frame;
+               frame.size.height -= MIN(statusBarFrame.size.width, statusBarFrame.size.height);
+    )
     
     UIView *view = [[UIView alloc] initWithFrame:frame];
     [view setAutoresizesSubviews:YES];
@@ -182,7 +183,9 @@ const char *MTStackViewControllerKey = "MTStackViewControllerKey";
     
     [self updateContainerViewFrameWidths];
     
-    [view addSubview:self.statusBarBackgroundView];
+    WL_RUNON_7(
+               [view addSubview:self.statusBarBackgroundView];
+    )
     
     [self setView:view];
 }
@@ -358,7 +361,11 @@ const char *MTStackViewControllerKey = "MTStackViewControllerKey";
                  inContainerView:(UIView *)containerView
 {
     CGRect frame = containerView.bounds;
-    CGFloat statusBarHeight = [[UIApplication sharedApplication] statusBarFrame].size.height;
+    CGFloat statusBarHeight = 0;
+    WL_RUNON_7(
+               statusBarHeight = [[UIApplication sharedApplication] statusBarFrame].size.height;
+    )
+    
     if ([viewController respondsToSelector:@selector(prefersStatusBarHidden)]) {
         if (![viewController prefersStatusBarHidden]) {
             frame.size.height -= statusBarHeight;

@@ -7,8 +7,8 @@
 //
 
 #import "MTMenuViewController.h"
-
 #import "MTStackViewController.h"
+#import "SystemVersions.h"
 
 static NSString *const MTTableViewCellIdentifier = @"MTTableViewCell";
 
@@ -43,7 +43,15 @@ static NSString *const MTTableViewCellIdentifier = @"MTTableViewCell";
 - (void)viewDidLoad
 {
     [[self tableView] registerClass:[UITableViewCell class] forCellReuseIdentifier:MTTableViewCellIdentifier];
-    self.edgesForExtendedLayout = UIRectEdgeNone;
+    
+    WL_RUNON_7(
+               self.edgesForExtendedLayout = UIRectEdgeNone;
+               self.automaticallyAdjustsScrollViewInsets = YES;
+               [self.tableView setContentInset:UIEdgeInsetsMake(20,
+                                                                self.tableView.contentInset.left,
+                                                                self.tableView.contentInset.bottom,
+                                                                self.tableView.contentInset.right)];
+    )
     
     // For some reason, when the view is added for the fold view, the nav bar gets pushed down for the status bar
     CGRect frame = self.navigationController.navigationBar.frame;
@@ -92,7 +100,9 @@ static NSString *const MTTableViewCellIdentifier = @"MTTableViewCell";
 {
     UIViewController *viewController = [UIViewController new];
     [[viewController view] setBackgroundColor:_datasource[[indexPath row]]];
-    self.preferredStatusBarBackgroundColor = _datasource[[indexPath row]];
+
+    WL_RUNON_7(self.preferredStatusBarBackgroundColor = _datasource[[indexPath row]];)
+
     [[viewController navigationItem] setTitle:[NSString stringWithFormat:@"View Controller %d", [indexPath row]]];
     
     UIBarButtonItem *menuBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Menu" style:UIBarButtonItemStyleBordered target:[self stackViewController] action:@selector(toggleLeftViewController)];
