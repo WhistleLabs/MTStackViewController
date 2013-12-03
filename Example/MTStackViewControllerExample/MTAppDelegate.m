@@ -40,6 +40,8 @@
     UINavigationController *contentNavigationController = [UINavigationController new];
     [stackViewController setContentViewController:contentNavigationController];
     
+    stackViewController.swipeEnabled = YES;
+    
     [[self window] setRootViewController:stackViewController];
     [[self window] makeKeyAndVisible];
     

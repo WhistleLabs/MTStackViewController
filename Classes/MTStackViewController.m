@@ -260,6 +260,16 @@ const char *MTStackViewControllerKey = "MTStackViewControllerKey";
 
 #pragma mark - Accessors
 
+- (BOOL)swipeEnabled
+{
+    return _panGestureRecognizer.enabled;
+}
+
+- (void)setSwipeEnabled:(BOOL)swipeEnabled
+{
+    _panGestureRecognizer.enabled = swipeEnabled;
+}
+
 - (void)setSlideOffset:(CGFloat)slideOffset
 {
     if (_slideOffset != slideOffset) {

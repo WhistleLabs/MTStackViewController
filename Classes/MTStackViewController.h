@@ -161,6 +161,8 @@ typedef enum
 // Default: 500.0f;
 @property (nonatomic, assign) CGFloat swipeVelocity;
 
+@property (nonatomic, assign) BOOL swipeEnabled;
+
 // Enables panning to reveal the left view controller.
 // Default: YES
 @property (nonatomic, assign, getter = isLeftViewControllerEnabled) BOOL leftViewControllerEnabled;
