@@ -1204,11 +1204,17 @@ const char *MTStackViewControllerKey = "MTStackViewControllerKey";
     {
         if (CGRectGetMinX([_contentContainerView frame]) > 0.0f)
         {
-            [self revealLeftViewController];
+            if (self.swipePermissions & MTStackViewControllerSwipeAllowedOpenLeft) {
+                [self revealLeftViewController];
+            } else {
+                [self hideLeftOrRightViewControllerAnimated:NO];
+            }
         }
         else
         {
-            [self hideRightViewController];
+            if (self.swipePermissions & MTStackViewControllerSwipeAllowedCloseRight) {
+                [self hideRightViewController];
+            }
         }
         didSwipe = YES;
     }
@@ -1216,11 +1222,17 @@ const char *MTStackViewControllerKey = "MTStackViewControllerKey";
     {
         if (CGRectGetMinX([_contentContainerView frame]) < 0.0f)
         {
-            [self revealRightViewController];
+            if (self.swipePermissions & MTStackViewControllerSwipeAllowedOpenRight) {
+                [self revealRightViewController];
+            } else {
+                [self hideLeftOrRightViewControllerAnimated:NO];
+            }
         }
         else
         {
-            [self hideLeftViewController];
+            if (self.swipePermissions & MTStackViewControllerSwipeAllowedCloseLeft) {
+                [self hideLeftViewController];
+            }
         }
         didSwipe = YES;
     }
