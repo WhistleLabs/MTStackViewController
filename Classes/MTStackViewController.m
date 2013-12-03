@@ -160,10 +160,11 @@ const char *MTStackViewControllerKey = "MTStackViewControllerKey";
 - (void)loadView
 {
     CGRect frame = [[UIScreen mainScreen] bounds];
-    WL_RUNON_7(
-               CGRect statusBarFrame = self.statusBarBackgroundView.frame;
-               frame.size.height -= MIN(statusBarFrame.size.width, statusBarFrame.size.height);
-    )
+    
+    if (WL_RUNNINGON_6) {
+        CGRect statusBarFrame = [[UIApplication sharedApplication] statusBarFrame];
+        frame.size.height -= MIN(statusBarFrame.size.width, statusBarFrame.size.height);
+    }
     
     UIView *view = [[UIView alloc] initWithFrame:frame];
     [view setAutoresizesSubviews:YES];
@@ -183,9 +184,9 @@ const char *MTStackViewControllerKey = "MTStackViewControllerKey";
     
     [self updateContainerViewFrameWidths];
     
-    WL_RUNON_7(
-               [view addSubview:self.statusBarBackgroundView];
-    )
+    if (WL_RUNNINGON_7) {
+        [view addSubview:self.statusBarBackgroundView];
+    }
     
     [self setView:view];
 }
@@ -363,10 +364,11 @@ const char *MTStackViewControllerKey = "MTStackViewControllerKey";
     CGRect frame = containerView.bounds;
     CGFloat statusBarHeight = 0;
     UIRectEdge edgesForExtendedLayout = UIRectEdgeNone;
-    WL_RUNON_7(
-               statusBarHeight = [[UIApplication sharedApplication] statusBarFrame].size.height;
-               edgesForExtendedLayout = viewController.edgesForExtendedLayout;
-    )
+
+    if (WL_RUNNINGON_7) {
+        statusBarHeight = [[UIApplication sharedApplication] statusBarFrame].size.height;
+        edgesForExtendedLayout = viewController.edgesForExtendedLayout;
+    }
     
     if ([viewController respondsToSelector:@selector(prefersStatusBarHidden)]) {
         if (![viewController prefersStatusBarHidden]) {
