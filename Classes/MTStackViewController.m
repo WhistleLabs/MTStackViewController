@@ -362,18 +362,24 @@ const char *MTStackViewControllerKey = "MTStackViewControllerKey";
 {
     CGRect frame = containerView.bounds;
     CGFloat statusBarHeight = 0;
+    UIRectEdge edgesForExtendedLayout = UIRectEdgeNone;
     WL_RUNON_7(
                statusBarHeight = [[UIApplication sharedApplication] statusBarFrame].size.height;
+               edgesForExtendedLayout = viewController.edgesForExtendedLayout;
     )
     
     if ([viewController respondsToSelector:@selector(prefersStatusBarHidden)]) {
         if (![viewController prefersStatusBarHidden]) {
+            if (!(edgesForExtendedLayout & UIRectEdgeTop)) {
+                frame.size.height -= statusBarHeight;
+                frame.origin.y += statusBarHeight;
+            }
+        }
+    } else {
+        if (!(edgesForExtendedLayout & UIRectEdgeTop)) {
             frame.size.height -= statusBarHeight;
             frame.origin.y += statusBarHeight;
         }
-    } else {
-        frame.size.height -= statusBarHeight;
-        frame.origin.y += statusBarHeight;
     }
     return frame;
 }
