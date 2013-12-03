@@ -36,6 +36,19 @@ typedef enum
     MTStackViewControllerPositionRight
 } MTStackViewControllerPosition;
 
+typedef NS_OPTIONS(NSInteger, MTStackViewControllerSwipeAllowed) {
+    MTStackViewControllerSwipeAllowedNone       =      0,
+    MTStackViewControllerSwipeAllowedOpenRight  = 1 << 0,
+    MTStackViewControllerSwipeAllowedCloseRight = 1 << 1,
+    MTStackViewControllerSwipeAllowedOpenLeft   = 1 << 2,
+    MTStackViewControllerSwipeAllowedCloseLeft  = 1 << 3,
+};
+static NSInteger const MTStackViewControllerSwipeAllowedAll =
+    MTStackViewControllerSwipeAllowedOpenRight  |
+    MTStackViewControllerSwipeAllowedOpenLeft   |
+    MTStackViewControllerSwipeAllowedCloseRight |
+    MTStackViewControllerSwipeAllowedCloseLeft;
+
 @class MTStackViewController;
 @class MTStackContentContainerView;
 
@@ -161,7 +174,7 @@ typedef enum
 // Default: 500.0f;
 @property (nonatomic, assign) CGFloat swipeVelocity;
 
-@property (nonatomic, assign) BOOL swipeEnabled;
+@property (nonatomic, assign) MTStackViewControllerSwipeAllowed swipePermissions;
 
 // Enables panning to reveal the left view controller.
 // Default: YES

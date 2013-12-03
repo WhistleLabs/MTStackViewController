@@ -260,16 +260,6 @@ const char *MTStackViewControllerKey = "MTStackViewControllerKey";
 
 #pragma mark - Accessors
 
-- (BOOL)swipeEnabled
-{
-    return _panGestureRecognizer.enabled;
-}
-
-- (void)setSwipeEnabled:(BOOL)swipeEnabled
-{
-    _panGestureRecognizer.enabled = swipeEnabled;
-}
-
 - (void)setSlideOffset:(CGFloat)slideOffset
 {
     if (_slideOffset != slideOffset) {
@@ -487,9 +477,22 @@ const char *MTStackViewControllerKey = "MTStackViewControllerKey";
 
 - (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer
 {
-    BOOL shouldBegin = [self contentContainerView:_contentContainerView panGestureRecognizerShouldPan:(UIPanGestureRecognizer *)gestureRecognizer];
+    MTStackViewControllerSwipeAllowed shouldBegin = self.swipePermissions;
     
-    return shouldBegin;
+    if (MTStackViewControllerSwipeAllowedNone == shouldBegin) {
+        return NO;
+    }
+    
+    if (self.leftViewControllerVisible) {
+        shouldBegin &= MTStackViewControllerSwipeAllowedCloseLeft;
+    } else if (self.rightViewControllerVisible) {
+        shouldBegin &= MTStackViewControllerSwipeAllowedCloseRight;
+    } else {
+        shouldBegin &= (MTStackViewControllerSwipeAllowedOpenRight | MTStackViewControllerSwipeAllowedOpenLeft);
+    }
+    
+    return ((BOOL)shouldBegin && [self contentContainerView:_contentContainerView panGestureRecognizerShouldPan:(UIPanGestureRecognizer *)gestureRecognizer]);
+    
 }
 
 #pragma mark - Instance Methods
