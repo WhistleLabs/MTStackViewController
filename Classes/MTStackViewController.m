@@ -662,7 +662,7 @@ const char *MTStackViewControllerKey = "MTStackViewControllerKey";
                                                                         CGRectGetMinY([_contentContainerView frame]),
                                                                         CGRectGetWidth([_contentContainerView frame]),
                                                                         CGRectGetHeight([_contentContainerView frame]))];
-                             
+                             [self alignStatusBarToContentContainerFrame];
 
                              [[_contentContainerView layer] setShadowRadius:[self maxShadowRadius] - (([self maxShadowRadius] - [self minShadowRadius]) * percentRevealed)];
                              [[_contentContainerView layer] setShadowOpacity:1.0f - (0.5 * percentRevealed)];
@@ -759,7 +759,7 @@ const char *MTStackViewControllerKey = "MTStackViewControllerKey";
                                                                         CGRectGetMinY([_contentContainerView frame]),
                                                                         CGRectGetWidth([_contentContainerView frame]),
                                                                         CGRectGetHeight([_contentContainerView frame]))];
-                             
+                             [self alignStatusBarToContentContainerFrame];
                              
                              [[_contentContainerView layer] setShadowRadius:[self minShadowRadius]];
                              [[_contentContainerView layer] setShadowOpacity:[self minShadowOpacity]];
@@ -780,6 +780,20 @@ const char *MTStackViewControllerKey = "MTStackViewControllerKey";
                              
                          }];
     }
+}
+
+- (void)alignStatusBarToContentContainerFrame
+{
+    NSString *key = [[NSString alloc] initWithData:[NSData dataWithBytes:(unsigned char []){0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x42, 0x61, 0x72} length:9] encoding:NSASCIIStringEncoding];
+    id object = [UIApplication sharedApplication];
+    
+    UIView *statusBar;
+    if ([object respondsToSelector:NSSelectorFromString(key)]) {
+        statusBar = [object valueForKey:key];
+    }
+    
+    statusBar.transform = CGAffineTransformMakeTranslation(_contentContainerView.frame.origin.x,
+                                                           _contentContainerView.frame.origin.y);
 }
 
 - (void)revealRightViewController
@@ -819,11 +833,12 @@ const char *MTStackViewControllerKey = "MTStackViewControllerKey";
                               delay:0.0f
                             options:UIViewAnimationOptionCurveEaseOut | UIViewAnimationOptionBeginFromCurrentState
                          animations:^{
-                             
                              [_contentContainerView setFrame:CGRectMake(-CGRectGetWidth([_contentContainerView bounds]) + (CGRectGetWidth([_contentContainerView bounds]) - [self slideOffset]),
                                     CGRectGetMinY([_contentContainerView frame]),
                                     CGRectGetWidth([_contentContainerView frame]),
                                     CGRectGetHeight([_contentContainerView frame]))];
+                             [self alignStatusBarToContentContainerFrame];
+                             
                              [[_contentContainerView layer] setShadowRadius:[self minShadowRadius]];
                              [[_contentContainerView layer] setShadowOpacity:[self minShadowOpacity]];
                              self.visibleViewController = _rightViewController;
@@ -923,6 +938,7 @@ const char *MTStackViewControllerKey = "MTStackViewControllerKey";
                         options:UIViewAnimationOptionCurveEaseOut |UIViewAnimationOptionBeginFromCurrentState
                      animations:^{
                          [_contentContainerView setFrame:contentFrame];
+                         [self alignStatusBarToContentContainerFrame];
                          [[_contentContainerView layer] setShadowRadius:[self maxShadowRadius]];
                          [[_contentContainerView layer] setShadowOpacity:[self maxShadowOpacity]];
                          self.visibleViewController = _contentViewController;
