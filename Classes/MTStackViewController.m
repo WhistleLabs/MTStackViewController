@@ -784,6 +784,10 @@ const char *MTStackViewControllerKey = "MTStackViewControllerKey";
 
 - (void)alignStatusBarToContentContainerFrame
 {
+    if (WL_RUNNINGON_6) {
+        return;
+    }
+    
     NSString *key = [[NSString alloc] initWithData:[NSData dataWithBytes:(unsigned char []){0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x42, 0x61, 0x72} length:9] encoding:NSASCIIStringEncoding];
     id object = [UIApplication sharedApplication];
     
