@@ -191,6 +191,71 @@ const char *MTStackViewControllerKey = "MTStackViewControllerKey";
     [self setView:view];
 }
 
+
+- (UIView *)statusBar
+{
+    if (WL_RUNNINGON_6) {
+        return nil;
+    }
+    
+    NSString *key = [[NSString alloc] initWithData:[NSData dataWithBytes:(unsigned char[]) {
+                                                    0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x42, 0x61, 0x72
+                                                    } length:9] encoding:NSASCIIStringEncoding];
+    
+    id object = [UIApplication sharedApplication];
+    if ([object respondsToSelector:NSSelectorFromString(key)]) {
+        return [object valueForKey:key];
+    }
+    
+    return nil;
+}
+
+- (void)alignStatusBarToContentContainerFrame
+{
+    [[self statusBar] setTransform:CGAffineTransformMakeTranslation(_contentContainerView.frame.origin.x,
+                                                                    _contentContainerView.frame.origin.y)];
+}
+
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    
+    if (animated) {
+        [UIView animateWithDuration:0.2f animations:^{
+            [[self statusBar] setAlpha:0.0f];
+            [[self statusBar] setTransform:CGAffineTransformMakeTranslation(0, -1 * [self statusBar].frame.size.height)];
+        } completion:^(BOOL finished) {
+            [self alignStatusBarToContentContainerFrame];
+            
+            [UIView animateWithDuration:0.2f animations:^{
+                [[self statusBar] setAlpha:1.0f];
+            }];
+        }];
+    } else {
+        [self alignStatusBarToContentContainerFrame];
+    }
+}
+
+- (void)viewWillDisappear:(BOOL)animated
+{
+    [super viewWillDisappear:animated];
+    
+    if (animated) {
+        [UIView animateWithDuration:0.2f animations:^{
+            [[self statusBar] setAlpha:0.0f];
+        } completion:^(BOOL finished) {
+            [[self statusBar] setTransform:CGAffineTransformMakeTranslation(0, -1 * [self statusBar].frame.size.height)];
+            
+            [UIView animateWithDuration:0.2f animations:^{
+                [[self statusBar] setAlpha:1.0f];
+                [[self statusBar] setTransform:CGAffineTransformMakeTranslation(0, 0)];
+            }];
+        }];
+    } else {
+        [[self statusBar] setTransform:CGAffineTransformMakeTranslation(0, 0)];
+    }
+}
+
 - (UIView *)statusBarBackgroundView
 {
     if (! _statusBarBackgroundView) {
@@ -780,24 +845,6 @@ const char *MTStackViewControllerKey = "MTStackViewControllerKey";
                              
                          }];
     }
-}
-
-- (void)alignStatusBarToContentContainerFrame
-{
-    if (WL_RUNNINGON_6) {
-        return;
-    }
-    
-    NSString *key = [[NSString alloc] initWithData:[NSData dataWithBytes:(unsigned char []){0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x42, 0x61, 0x72} length:9] encoding:NSASCIIStringEncoding];
-    id object = [UIApplication sharedApplication];
-    
-    UIView *statusBar;
-    if ([object respondsToSelector:NSSelectorFromString(key)]) {
-        statusBar = [object valueForKey:key];
-    }
-    
-    statusBar.transform = CGAffineTransformMakeTranslation(_contentContainerView.frame.origin.x,
-                                                           _contentContainerView.frame.origin.y);
 }
 
 - (void)revealRightViewController
