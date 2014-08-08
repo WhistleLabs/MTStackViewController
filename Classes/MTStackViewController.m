@@ -633,6 +633,8 @@ const char *MTStackViewControllerKey = "MTStackViewControllerKey";
                     [self setContentViewUserInteractionEnabled:YES];
                 }
             }
+            
+            [self didRevealContentViewController];
         }
     }
     else if (currentContentViewController)
